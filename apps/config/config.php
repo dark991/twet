@@ -12,6 +12,3 @@ return new \Phalcon\Config(
     ]
 );
 
-//
-// Twet api Client ID (twitch)
-// ru0xspiy28g46max3mqdxuywpc4za16
