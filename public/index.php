@@ -10,23 +10,12 @@ use Phalcon\Mvc\Application as BaseApplication;
 class Application extends BaseApplication
 {
 
-
     /**
      * Register the services here to make them general or register in the ModuleDefinition to make them module-specific
      */
     protected function registerServices()
     {
         $di = new FactoryDefault();
-        $loader = new Loader();
-
-        /**
-         * We're a registering a set of directories taken from the configuration file
-         */
-        $loader->registerDirs(
-            array(
-                __DIR__ . '/../apps/library/'
-            )
-        )->register();
 
         //Registering a router
         $di->set('router', function(){
@@ -56,6 +45,12 @@ class Application extends BaseApplication
             ));
 
             // TWICH API Incubator
+            $router->add("/twitch/", array(
+                'module' => 'backend',
+                'controller' => 'twitchapi',
+                'action' => 'index',
+            ));
+
             $router->add("/twitch/:action", array(
                 'module' => 'backend',
                 'controller' => 'twitchapi',

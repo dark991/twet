@@ -17,6 +17,7 @@ class Module
         $loader->registerNamespaces(array(
             'Twet\Frontend\Controllers' => '../apps/frontend/controllers/',
             'Twet\Frontend\Models' => '../apps/frontend/models/',
+            'Twet\Library' => '../apps/library/'
         ));
         $loader->register();
     }
@@ -27,6 +28,16 @@ class Module
     public function registerServices($di)
     {
 
+        $config = (require '../apps/config/config.php');
+        $di->setShared('config', $config);
+
+        // Регистрация компонента TagComponent с абсолютными путями
+        $di->set('customtag', function () use ($config) {
+            $tags = new \Twet\Library\TagComponent();
+            $tags->setURL($config->hosts['main']);
+            return $tags;
+        });
+        
         //Registering a dispatcher
         $di->set('dispatcher', function () {
             $dispatcher = new Dispatcher();

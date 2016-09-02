@@ -1,0 +1,19 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: lifarav
+ * Date: 02.09.2016
+ * Time: 23:21
+ */
+
+ return new \Phalcon\Config(
+     [
+         'mail' => [
+             'fromName' => 'Twet',
+             'fromEmail' => 'twet-bot@virtualbox.vm',
+         ],
+         'hosts' => [
+             'main' => 'http://virtualbox.vm',
+         ],
+     ]
+ );
