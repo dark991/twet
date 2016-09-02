@@ -87,6 +87,6 @@ bh_unicode_properties.cache
 GitHub.sublime-settings
 
 .idea/
-/apps/frontend/config/config.php
-/apps/backend/config/config.php
-/apps/config/config.php
+apps/frontend/config/config.php
+apps/backend/config/config.php
+apps/config/config.php
