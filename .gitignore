@@ -90,3 +90,6 @@ GitHub.sublime-settings
 apps/frontend/config/config.php
 apps/backend/config/config.php
 apps/config/config.php
+vendor/
+/composer.lock
+/composer.phar

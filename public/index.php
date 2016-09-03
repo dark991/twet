@@ -45,15 +45,9 @@ class Application extends BaseApplication
             ));
 
             // TWICH API Incubator
-            $router->add("/twitch/", array(
-                'module' => 'backend',
-                'controller' => 'twitchapi',
-                'action' => 'index',
-            ));
-
             $router->add("/twitch/:action", array(
-                'module' => 'backend',
-                'controller' => 'twitchapi',
+                'module' => 'frontend',
+                'controller' => 'twitch',
                 'action' => 1,
             ));
 
