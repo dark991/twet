@@ -86,10 +86,8 @@ bh_unicode_properties.cache
 # https://packagecontrol.io/packages/sublime-github
 GitHub.sublime-settings
 
-.idea/
-apps/frontend/config/config.php
-apps/backend/config/config.php
-apps/config/config.php
-vendor/
+/.idea/
+/apps/config/config.php
+/vendor/
 /composer.lock
 /composer.phar
