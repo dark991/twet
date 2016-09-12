@@ -1,3 +1,18 @@
+    <?php
+    echo $this->tag->form([
+        $this->customTag->getUrl() . '/auth',
+        "method" => "post"
+    ]);
+    ?>
+
+    <?php echo $form->render('email'); ?>
+    <?php echo $form->render('password'); ?>
+
+
+    <input type="submit" value="Отправить">
+
+
+
     <button id="btn-signin-twitch"><h4>Connect with Twitch</h4></button>
 
     <script>
@@ -5,5 +20,3 @@
             window.location.href = "https://api.twitch.tv/kraken/oauth2/authorize?response_type=code&client_id=ru0xspiy28g46max3mqdxuywpc4za16&redirect_uri=<?=$this->config->hosts['main'];?>/twitch/callback&scope=channel_read";
         })
     </script>
-
-

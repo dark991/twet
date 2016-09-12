@@ -2,10 +2,15 @@
 
 namespace Twet\Frontend;
 
+use Phalcon\Http\Response\Cookies;
+use Phalcon\Events\Manager as EventsManager;
 use Phalcon\Loader;
-use Phalcon\Acl\Adapter\Memory as Acl;
 use Phalcon\Mvc\Dispatcher;
+use Phalcon\Crypt;
 use Phalcon\Db\Adapter\Pdo\Mysql;
+use Phalcon\Mvc\View;
+use \Twet\Library;
+use \Vendor;
 
 class Module
 {
@@ -17,8 +22,9 @@ class Module
         $loader->registerNamespaces(array(
             'Twet\Frontend\Controllers' => '../apps/frontend/controllers/',
             'Twet\Frontend\Models' => '../apps/frontend/models/',
+            'Twet\Frontend\Forms' => '../apps/frontend/forms/',
             'Twet\Library' => '../apps/library/',
-            'TwitchTV' => '../vendor/ritero/twitch-sdk/src/ritero/SDK/TwitchTV/',
+            'Vendor\TwitchTV' => '../vendor/ritero/twitch-sdk/src/ritero/SDK/TwitchTV/',
         ));
         $loader->register();
     }
@@ -31,48 +37,68 @@ class Module
 
         $config = (require '../apps/config/config.php');
         $di->setShared('config', $config);
+        
         // Регистрация компонента TwitchSDK
         $di->setShared('twitch', function () use ($config) {
-            return new \TwitchTV\TwitchSDK([
+            return new Vendor\TwitchTV\TwitchSDK([
                 'client_id' => $config->twitch->client_id,
                 'client_secret' => $config->twitch->client_secret,
                 'redirect_uri' => $config->twitch->redirect_uri,
             ]);
         });
 
-        // Регистрация компонента TagComponent с абсолютными путями
+        $di->set('crypt', function () use ($config) {
+            $crypt = new Crypt();
+            $crypt->setKey($config->crypt->key);
+            return $crypt;
+        });
+
+        $di->setShared('cookies', function () {
+            $cookies = new Cookies();
+            $cookies->useEncryption(false);
+            return $cookies;
+        });
+
         $di->setShared('customTag', function () use ($config) {
-            $tags = new \Twet\Library\TagComponent();
+            $tags = new Library\TagComponent();
             $tags->setURL($config->hosts['main']);
             return $tags;
         });
 
-        //Registering a dispatcher
         $di->set('dispatcher', function () {
+            // Создаем менеджер событий
+            $eventsManager = new EventsManager();
+            // Плагин безопасности слушает события, инициированные диспетчером
+            $eventsManager->attach('dispatch:beforeExecuteRoute', new Library\SecurityPlugin());
+            // Отлавливаем исключения и not-found исключения, используя NotFoundPlugin
+            $eventsManager->attach('dispatch:beforeException', new Library\NotFoundPlugin);
+
             $dispatcher = new Dispatcher();
-            
-            //Attach a event listener to the dispatcher
-            $eventManager = new \Phalcon\Events\Manager();
-            $eventManager->attach('dispatch', new Acl('frontend'));
-            $dispatcher->setEventsManager($eventManager);
+            // Связываем менеджер событий с диспетчером
+            $dispatcher->setEventsManager($eventsManager);
             $dispatcher->setDefaultNamespace("Twet\Frontend\Controllers\\");
             return $dispatcher;
         });
 
-        //Registering the view component
-        $di->set('view', function () {
-            $view = new \Phalcon\Mvc\View();
+        $di->set('view', function () use ($config) {
+            $view = new View();
             $view->setViewsDir('../apps/frontend/views/');
             return $view;
         });
 
-        $di->set('db', function () {
-            return new Database(array(
-                "host" => "localhost",
-                "username" => "root",
-                "password" => "secret",
-                "dbname" => "invo"
-            ));
+        $di->set('db', function () use ($config) {
+            return new Mysql([
+                'host' => $config->mysql['host'],
+                'username' => $config->mysql['username'],
+                'password' => $config->mysql['password'],
+                'dbname' => $config->mysql['dbname'],
+                'persistent' => $config->mysql['persistent'],
+                'options' => [
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\'',
+                    \PDO::ATTR_CASE               => \PDO::CASE_LOWER
+                ]
+            ]);
         });
+
     }
 }

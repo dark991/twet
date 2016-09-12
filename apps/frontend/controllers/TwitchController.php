@@ -8,7 +8,7 @@ use Phalcon\Di;
 class TwitchController extends ControllerBase
 {
 
-    public function beforeExecuteRoute($dispatcher)
+    public function beforeExecuteRoute()
     {
 
     }

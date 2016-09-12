@@ -28,22 +28,6 @@ class Application extends BaseApplication
                 'action' => 2,
             ));
 
-            // *** Backend-сервисы ***
-
-            // Авторизация
-            $router->add("/login", array(
-                'module' => 'backend',
-                'controller' => 'login',
-                'action' => 'index',
-            ));
-
-            // Регистрация
-            $router->add("/signup", array(
-                'module' => 'backend',
-                'controller' => 'signup',
-                'action' => 'index',
-            ));
-
             // TWICH API Incubator
             $router->add("/twitch/:action", array(
                 'module' => 'frontend',

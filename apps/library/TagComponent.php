@@ -29,5 +29,10 @@ class TagComponent extends Tag
     {
         return Tag::javascriptInclude($this->url . $parameters, $local);
     }
+    
+    public function getURL()
+    {
+        return $this->url;
+    }
 
 }
