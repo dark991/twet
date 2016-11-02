@@ -18,21 +18,21 @@ class TagComponent extends Tag
      *
      */
 
-    protected $url;
+    private $_url;
 
     public function setURL($url)
     {
-        $this->url = $url;
+        $this->_url = $url;
     }
 
     public function jsLink($parameters = null, $local = true)
     {
-        return Tag::javascriptInclude($this->url . $parameters, $local);
+        return Tag::javascriptInclude($this->_url . $parameters, $local);
     }
     
     public function getURL()
     {
-        return $this->url;
+        return $this->_url;
     }
 
 }

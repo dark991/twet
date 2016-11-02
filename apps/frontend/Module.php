@@ -65,11 +65,15 @@ class Module
             return $tags;
         });
 
+        $di->setShared('auth', function () use ($di) {
+            $auth = new Library\AuthComponent($di);
+            $auth->initialize();
+            return $auth;
+        });
+
         $di->set('dispatcher', function () {
             // Создаем менеджер событий
             $eventsManager = new EventsManager();
-            // Плагин безопасности слушает события, инициированные диспетчером
-            $eventsManager->attach('dispatch:beforeExecuteRoute', new Library\SecurityPlugin());
             // Отлавливаем исключения и not-found исключения, используя NotFoundPlugin
             $eventsManager->attach('dispatch:beforeException', new Library\NotFoundPlugin);
 

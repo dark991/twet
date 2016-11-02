@@ -10,7 +10,7 @@ namespace Twet\Frontend\Models;
 
 use Phalcon\Mvc\Model;
 
-class Users extends Model
+class User extends Model
 {
 
     /*protected $id;
@@ -25,13 +25,8 @@ class Users extends Model
     public $twitch_token;
     public $datetime;
 
-    /*public function initialize()
+    public function initialize()
     {
         $this->setSource('users');
-    }*/
-
-    /*public function getId()
-    {
-        return $this->id;
-    }*/
+    }
 }

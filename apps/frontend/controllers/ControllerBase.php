@@ -10,12 +10,25 @@ namespace Twet\Frontend\Controllers;
 use Phalcon\Mvc\Controller;
 use Phalcon\Tag;
 
+/**
+ * @property \Twet\Library\AuthComponent        $auth               Компонент авторизации
+ */
+
+
 class ControllerBase extends Controller
 {
 
+    public $auth;
+
     public function beforeExecuteRoute()
     {
+        /*$this->auth = $this->getDI()->getShared('auth');
         
+        if($this->auth->isGuest()) {
+            $this->response->redirect('auth/redirect?uri='.($this->request->getURI()));
+        }
+        $this->response->send();
+        die();*/
     }
 
     protected function initialize()

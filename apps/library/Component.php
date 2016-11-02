@@ -9,10 +9,12 @@
 namespace Twet\Library;
 
 use Phalcon\DiInterface;
+use Phalcon\Di\InjectionAwareInterface;
 
-class Component implements \Phalcon\DI\InjectionAwareInterface
+class Component implements InjectionAwareInterface
 {
     protected $_di;
+    protected $_initialized;
 
     public function __construct(DiInterface $di)
     {
@@ -27,5 +29,10 @@ class Component implements \Phalcon\DI\InjectionAwareInterface
     public function getDI()
     {
         return $this->_di;
+    }
+
+    public function isInitialized()
+    {
+        return $this->_initialized;
     }
 }
