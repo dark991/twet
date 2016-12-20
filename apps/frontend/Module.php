@@ -2,12 +2,14 @@
 
 namespace Twet\Frontend;
 
+use Phalcon\DiInterface;
 use Phalcon\Http\Response\Cookies;
 use Phalcon\Events\Manager as EventsManager;
 use Phalcon\Loader;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Crypt;
 use Phalcon\Db\Adapter\Pdo\Mysql;
+use Phalcon\Mvc\Url;
 use Phalcon\Mvc\View;
 use \Twet\Library;
 use \Vendor;
@@ -31,13 +33,15 @@ class Module
 
     /**
      * Register the services here to make them general or register in the ModuleDefinition to make them module-specific
+     *
+     * @param DiInterface $di
      */
-    public function registerServices($di)
+    public function registerServices(DiInterface $di)
     {
 
-        $config = (require '../apps/config/config.php');
+        $config = require_once '../apps/config/config.php';
         $di->setShared('config', $config);
-        
+
         // Регистрация компонента TwitchSDK
         $di->setShared('twitch', function () use ($config) {
             return new Vendor\TwitchTV\TwitchSDK([
@@ -59,10 +63,11 @@ class Module
             return $cookies;
         });
 
-        $di->setShared('customTag', function () use ($config) {
-            $tags = new Library\TagComponent();
-            $tags->setURL($config->hosts['main']);
-            return $tags;
+        $di->setShared('url', function () use ($config) {
+            $url = new Url();
+            $url->setBaseUri($config->hosts['main']);
+            $url->setStaticBaseUri($config->hosts['static']);
+            return $url;
         });
 
         $di->setShared('auth', function () use ($di) {
@@ -71,16 +76,28 @@ class Module
             return $auth;
         });
 
-        $di->set('dispatcher', function () {
+        $di->set('dispatcher', function () use ($di){
             // Создаем менеджер событий
             $eventsManager = new EventsManager();
-            // Отлавливаем исключения и not-found исключения, используя NotFoundPlugin
-            $eventsManager->attach('dispatch:beforeException', new Library\NotFoundPlugin);
-
+            $eventsManager->attach(
+                'dispatch:beforeException',
+                function($event, $dispatcher, $exception)
+                {
+                    switch ($exception->getCode()) {
+                        case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
+                        case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
+                            $dispatcher->forward([
+                                'controller' => 'error',
+                                'action'     => 'route404'
+                            ]);
+                            return false;
+                    }
+                }
+            );
             $dispatcher = new Dispatcher();
             // Связываем менеджер событий с диспетчером
             $dispatcher->setEventsManager($eventsManager);
-            $dispatcher->setDefaultNamespace("Twet\Frontend\Controllers\\");
+            $dispatcher->setDefaultNamespace('Twet\Frontend\Controllers\\');
             return $dispatcher;
         });
 
@@ -99,7 +116,7 @@ class Module
                 'persistent' => $config->mysql['persistent'],
                 'options' => [
                     \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\'',
-                    \PDO::ATTR_CASE               => \PDO::CASE_LOWER
+                    \PDO::ATTR_CASE => \PDO::CASE_LOWER
                 ]
             ]);
         });

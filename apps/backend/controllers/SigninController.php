@@ -2,9 +2,7 @@
 
 namespace Twet\Backend\Controllers;
 
-use Phalcon\Mvc\Controller;
-
-class SignupController extends Controller
+class SigninController extends AjaxController
 {
     
     public function indexAction()

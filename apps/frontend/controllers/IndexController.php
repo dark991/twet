@@ -2,8 +2,6 @@
 
 namespace Twet\Frontend\Controllers;
 
-use Phalcon\Mvc\Controller;
-use Phalcon\Di;
 use Twet\Frontend\Forms\LoginForm;
 
 class IndexController extends ControllerBase

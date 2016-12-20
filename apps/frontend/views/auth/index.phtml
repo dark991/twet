@@ -3,7 +3,7 @@
 var_dump($this->auth->isGuest());
 var_dump($this->auth->isInitialized());
 //var_dump($this->auth->generateNewSession())
-var_dump($this->getDI()->getShared('cookies')->has('Session'));
+var_dump($this->getDI()->getShared('cookies')->get('Session')->getValue());
 
 ?>
 

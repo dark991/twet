@@ -8,8 +8,7 @@
 
 namespace Twet\Library;
 
-use Phalcon\Mvc\Dispatcher;
-use Phalcon\Http\Request;
+use Phalcon\Mvc\Model;
 use Twet\Frontend\Models\User;
 use Twet\Frontend\Models\Session;
 
@@ -17,48 +16,60 @@ class AuthComponent extends Component
 {
 
     const SESSION_COOKIE_NAME = 'Session';
-    
+
     const SALT = '!9124dnsa0#_^s';
 
     protected $_sessionCookiePrefix = '';
 
-    protected $_session = '';
+    protected $_session;
     protected $_sign = '';
-    protected $_user = '';
-    
-    public $homeLoggedUrl = 'dashboard';
+    protected $_user;
+
+    protected $homeLoggedUrl = 'dashboard';
 
     protected $_isGuest = true;
-    
+
+
+    /**
+     * Функция инициализации компонента авторизации
+     */
     public function initialize()
     {
         $session = $this->getSessionFromCookie();
 
         if (isset($session->userId)) {
             $user = $this->checkUserById($session->userId);
-            
+
             if (!$user) {
                 $this->logout();
             }
-            
+
             $this->_sign = $session->hash;
             $this->_isGuest = false;
         }
-        
+
         $this->setSession($session);
-        //$this->setUser($user);
 
         $this->_initialized = true;
-        
+
     }
 
-    // Получить название сессии
+
+    /**
+     * Получить название куки для сессии
+     *
+     * @return string
+     */
     public function getSessionCookieName()
     {
-        return $this->_sessionCookiePrefix.self::SESSION_COOKIE_NAME;
+        return $this->_sessionCookiePrefix . self::SESSION_COOKIE_NAME;
     }
-    
-    // Получить сессию или создать новую
+
+    /**
+     * Получить сессию из куков
+     *
+     * @return Session
+     */
     public function getSessionFromCookie()
     {
         $cookies = $this->getDI()->getShared('cookies');
@@ -70,13 +81,14 @@ class AuthComponent extends Component
                 $this->clearCookies();
                 return $this->generateNewSession();
             }
-            
-            $session = Session::findFirstByTimestamp($sessionData);
-            if(!$session) {
+
+            $session = Session::findFirstByCookieValue($sessionData);
+
+            if (!$session) {
                 $this->closeSession();
                 return $this->generateNewSession();
             }
-            
+
             return $session;
         }
 
@@ -86,8 +98,10 @@ class AuthComponent extends Component
 
     /**
      * Создать новую сессию. Запись о сессии помещается в таблицу Sessions
+     *
+     * @return Session|\Exception
      */
-    public function generateNewSession ()
+    public function generateNewSession()
     {
         $request = $this->getDI()->getShared('request');
 
@@ -112,9 +126,11 @@ class AuthComponent extends Component
     }
 
     /**
-     * @param $cookieValue    Уникальное значение сессии
+     * Установить куки для сессии
+     *
+     * @param string $cookieValue
      */
-    public function setSessionCookie ($cookieValue)
+    public function setSessionCookie($cookieValue)
     {
         $cookies = $this->getDI()->getShared('cookies');
         $cookies->set(
@@ -129,6 +145,11 @@ class AuthComponent extends Component
         $this->_isGuest = false;
     }
 
+
+    /**
+     * @param string $userId
+     * @return Model
+     */
     public function checkUserById($userId)
     {
         return User::findFirst($userId);
@@ -158,51 +179,79 @@ class AuthComponent extends Component
         $this->closeSession();
     }
 
+    /**
+     * Получить статус авторизации
+     *
+     * @return bool
+     */
     public function isGuest()
     {
         return $this->_isGuest;
     }
-    
+
     /**
      *  Сеттеры и геттеры
      */
 
     /**
-     * @param $session
-     * @return mixed
+     * Установить объект сессии
+     *
+     * @param Session $session
+     * @return Session
      */
     public function setSession($session)
     {
         return $this->_session = $session;
     }
-    
+
+    /**
+     * Вернуть объект сессии
+     *
+     * @return Session
+     */
     public function getSession()
     {
         return $this->_session;
     }
 
     /**
-     * @param $user
-     * @return mixed
+     * Установить объект пользователя
+     *
+     * @param User $user
+     * @return User
      */
     public function setUser($user)
     {
         return $this->_user = $user;
     }
 
+    /**
+     * Вернуть объект пользователя
+     *
+     * @return User
+     */
     public function getUser()
     {
         return $this->_user;
     }
-    
-    public function sign()
-    {
-        
-        
-    }
 
+    /**
+     * Получить подпись
+     *
+     * @return string
+     */
     public function getSign()
     {
         return $this->_sign;
+    }
+
+    /**
+     * Вернуть URL перенаправления после авторизации
+     *
+     * @return string
+     */
+    public function getHomeLoggedUrl()
+    {
+        return $this->homeLoggedUrl;
     }
 }

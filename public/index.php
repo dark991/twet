@@ -2,8 +2,6 @@
 
 error_reporting(E_ALL);
 
-use Phalcon\Loader;
-use Phalcon\Mvc\Router;
 use Phalcon\DI\FactoryDefault;
 use Phalcon\Mvc\Application as BaseApplication;
 
@@ -17,24 +15,9 @@ class Application extends BaseApplication
     {
         $di = new FactoryDefault();
 
-        //Registering a router
-        $di->set('router', function(){
-            $router = new Router();
-            $router->setDefaultModule("frontend");
-
-            $router->add('/:controller/:action', array(
-                'module' => 'frontend',
-                'controller' => 1,
-                'action' => 2,
-            ));
-
-            // TWICH API Incubator
-            $router->add("/twitch/:action", array(
-                'module' => 'frontend',
-                'controller' => 'twitch',
-                'action' => 1,
-            ));
-
+        $di->set('router', function () {
+            $router = null;
+            require_once __DIR__ . '/../apps/config/routes.php';
             return $router;
         });
 
@@ -45,7 +28,6 @@ class Application extends BaseApplication
     {
         $this->registerServices();
 
-        //Register the installed modules
         $this->registerModules(array(
             'frontend' => array(
                 'className' => 'Twet\Frontend\Module',

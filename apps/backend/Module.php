@@ -6,7 +6,6 @@ use Phalcon\Loader;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\DiInterface;
-use Phalcon\Db\Adapter\Pdo\Mysql as Database;
 
 class Module
 {
@@ -16,13 +15,15 @@ class Module
         $loader->registerNamespaces(array(
             'Twet\Backend\Controllers' => '../apps/backend/controllers/',
             'Twet\Backend\Models'      => '../apps/backend/models/',
-            'Twet\Backend\Plugins'     => '../apps/backend/plugins/',
+            'Twet\Library' => '../apps/library/',
         ));
         $loader->register();
     }
     
     /**
      * Register the services here to make them general or register in the ModuleDefinition to make them module-specific
+     *
+     * @param DiInterface $di
      */
     public function registerServices(DiInterface $di)
     {
@@ -31,7 +32,7 @@ class Module
         
         $di->set('dispatcher', function() {
             $dispatcher = new Dispatcher();
-            $dispatcher->setDefaultNamespace("Twet\Backend\Controllers\\");
+            $dispatcher->setDefaultNamespace('Twet\Backend\Controllers\\');
             return $dispatcher;
         });
         
@@ -43,15 +44,5 @@ class Module
             return $view;
         });
         
-        //Set a different connection in each module
-        
-        $di->set('db', function() {
-            return new Database(array(
-                "host" => "localhost",
-                "username" => "root",
-                "password" => "secret",
-                "dbname" => "invo"
-            ));
-        });
     }
 }

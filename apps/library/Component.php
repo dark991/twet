@@ -35,4 +35,5 @@ class Component implements InjectionAwareInterface
     {
         return $this->_initialized;
     }
+
 }

@@ -42,12 +42,4 @@ class ControllerBase extends Controller
 
     }
 
-    protected function _error($code = 404, $text = 'Not found')
-    {
-        $this->response->setStatusCode($code, $text)->sendHeaders();
-        $this->dispatcher->forward([
-            'controller' => 'error',
-            'action' => '_404',
-        ]);
-    }
 }
